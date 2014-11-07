@@ -1,0 +1,18 @@
+Java 1.7 and maven required.
+
+Possible arguments are: GWDG, FLEXIANT or AGH
+
+To run using maven:
+mvn clean compile exec:java  -Dexec.args="GWDG"
+
+To build standalone executable jar:
+mvn clean compile assembly:single
+jar then can be found in target/ folder.
+
+And can be invoked like:
+java -jar scalarmintegrationtests-1.0-jar-with-dependencies.jar "GWDG"
+
+Because of slow response of GWDG execution of jar can take a while (maximum time encountered was about 3 mins)
+
+On successful execution jar returns with exit code 0, or failure it returns with 1 (accompanied by some debugging info).
+
