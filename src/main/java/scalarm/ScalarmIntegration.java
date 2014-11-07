@@ -5,6 +5,7 @@ import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
 
+import java.util.NoSuchElementException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -13,7 +14,7 @@ public class ScalarmIntegration {
     static Logger logger = Logger.getLogger("scalarmScalarm.Integration");
 
     public static void main(String args[]) {
-        logger.setLevel(Level.OFF);
+        logger.setLevel(Level.WARNING);
 
         DataBean bean = null;
         try {
@@ -34,35 +35,31 @@ public class ScalarmIntegration {
         }
         } catch (MethodNotSupportedException e) {
             e.printStackTrace();
+            System.exit(1);
+        } catch (NoSuchElementException e) {
+            e.printStackTrace();
+            System.exit(1);
         }
 
-        String experimentManagerIp = bean.experimentManager.getPublicAddresses().iterator().next();
-        String simulationManagerIp = bean.simulationManager.getPublicAddresses().iterator().next();
-        String informationServiceIp =  bean.informationService.getPublicAddresses().iterator().next();
-        String storageManagerIp =  bean.storageManager.getPublicAddresses().iterator().next();
 
-        logger.log(Level.INFO,bean.experimentManager.getPublicAddresses().toString());
-        logger.log(Level.INFO, bean.simulationManager.getPublicAddresses().toString());
-        logger.log(Level.INFO, bean.informationService.getPublicAddresses().toString());
-        logger.log(Level.INFO, bean.storageManager.getPublicAddresses().toString());
+        logger.log(Level.INFO, bean.experimentManagerUrl);
+        logger.log(Level.INFO, bean.simulationManagerUrl);
+        logger.log(Level.INFO, bean.informationServiceUrl);
+        logger.log(Level.INFO, bean.storageManagerUrl);
 
-/*      String experimentManagerIp =  "141.5.102.194";//gwgd.bean.experimentManager.getPublicAddresses().iterator().next();
-        String simulationManagerIp =  "141.5.101.186" ;//gwgd.bean.simulationManager.getPublicAddresses().iterator().next();
-        String informationServiceIp =  "141.5.102.188" ;//gwgd.bean.informationService.getPublicAddresses().iterator().next();
-        String storageManagerIp =  "141.5.102.151" ;//gwgd.bean.storageManager.getPublicAddresses().iterator().next();
+/*      String experimentManagerIp =  "141.5.102.194";//gwgd.bean.experimentManagerUrl.getPublicAddresses().iterator().next();
+        String simulationManagerIp =  "141.5.101.186" ;//gwgd.bean.simulationManagerUrl.getPublicAddresses().iterator().next();
+        String informationServiceIp =  "141.5.102.188" ;//gwgd.bean.informationServiceUrl.getPublicAddresses().iterator().next();
+        String storageManagerIp =  "141.5.102.151" ;//gwgd.bean.storageManagerUrl.getPublicAddresses().iterator().next();
 */
         JUnitCore junit = new JUnitCore();
 
-        System.setProperty("storageManagerIp","https://"+
-                storageManagerIp
-                +":20001/status") ;
-        System.setProperty("informationServiceIp", "https://"+
-                informationServiceIp
-                +":11300/experiment_managers") ;
-        System.setProperty("simulationManagerIp", experimentManagerIp) ;
-        System.setProperty("experimentManagerIp", "https://"+
-                experimentManagerIp
-                +":443/status") ;
+        System.setProperty("storageManagerIp",bean.storageManagerUrl) ;
+        System.setProperty("informationServiceIp", bean.informationServiceUrl) ;
+        System.setProperty("simulationManagerIp", bean.simulationManagerUrl) ;
+        System.setProperty("simulationManagerPortAlive", Integer.toString(bean.simulationManagerPortAlive)) ;
+        System.setProperty("simulationManagerPortRunning", Integer.toString(bean.simulationManagerPortRunning)) ;
+        System.setProperty("experimentManagerIp", bean.experimentManagerUrl) ;
 
         Result result = junit.run(scalarm.ScalarmResponsesTest.class);
 
@@ -71,7 +68,6 @@ public class ScalarmIntegration {
         } else {
             for(Failure f: result.getFailures()){
                 System.err.println(f.getTestHeader());
-                System.err.println(f.getMessage());
                 System.err.println(f.getException());
                 System.err.println(f.getTrace());
             }

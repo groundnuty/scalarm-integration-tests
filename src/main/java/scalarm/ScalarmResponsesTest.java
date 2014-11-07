@@ -38,10 +38,12 @@ import org.apache.http.conn.ssl.SSLSocketFactory;
 
 public class ScalarmResponsesTest {
 
-    String storageManagerIp = "https://149.156.10.32:16450/status" ;
-    String informationServiceIp = "https://149.156.10.32:31034/experiment_managers" ;
-    String simulationManagerIp = "149.156.10.32" ;
-    String experimentManagerIp = "https://149.156.10.32:50047/status" ;
+    String storageManagerIp = null ;
+    String informationServiceIp = null ;
+    String simulationManagerIp = null ;
+    int simulationManagerPortAlive =0;
+    int simulationManagerPortRunning = 0 ;
+    String experimentManagerIp = null ;
 
 
     @Before
@@ -50,6 +52,8 @@ public class ScalarmResponsesTest {
         informationServiceIp = System.getProperty("informationServiceIp");
         simulationManagerIp = System.getProperty("simulationManagerIp");
         experimentManagerIp = System.getProperty("experimentManagerIp");
+        simulationManagerPortAlive = new Integer(System.getProperty("simulationManagerPortAlive"));
+        simulationManagerPortRunning = new Integer(System.getProperty("simulationManagerPortRunning"));
     }
 
     public DefaultHttpClient getNewHttpClient() {
@@ -86,7 +90,7 @@ public class ScalarmResponsesTest {
         HttpGet request = new HttpGet(storageManagerUrl);
         HttpResponse response = client.execute(request);
         String responseString = EntityUtils.toString(response.getEntity(), "UTF-8");
-        ScalarmIntegration.logger.log(Level.INFO,responseString);
+        ScalarmIntegration.logger.log(Level.INFO, responseString);
 
         assertEquals(200, response.getStatusLine().getStatusCode());
 
@@ -101,7 +105,7 @@ public class ScalarmResponsesTest {
         HttpGet request = new HttpGet(storageManagerUrl);
         HttpResponse response = client.execute(request);
         String responseString = EntityUtils.toString(response.getEntity(), "UTF-8");
-        ScalarmIntegration.logger.log(Level.INFO,responseString);
+        ScalarmIntegration.logger.log(Level.INFO, responseString);
 
         assertEquals(200, response.getStatusLine().getStatusCode());
 
@@ -117,7 +121,7 @@ public class ScalarmResponsesTest {
         HttpGet request = new HttpGet(storageManagerUrl);
         HttpResponse response = client.execute(request);
         String responseString = EntityUtils.toString(response.getEntity(), "UTF-8");
-        ScalarmIntegration.logger.log(Level.INFO,responseString);
+        ScalarmIntegration.logger.log(Level.INFO, responseString);
 
         assertEquals(200, response.getStatusLine().getStatusCode());
 
@@ -129,14 +133,14 @@ public class ScalarmResponsesTest {
 
         String remote = simulationManagerIp;
         //String hostname = remote.getHostName();
-        int port = 443;//1830;
+        int port = simulationManagerPortAlive ;//1830;
         try {
             Socket s = new Socket();
             s.connect(new InetSocketAddress(remote, port), 20000);
-            ScalarmIntegration.logger.log(Level.INFO," simulationManager is listening on port " + port + " of " + remote);
+            ScalarmIntegration.logger.log(Level.INFO, " simulationManagerUrl is listening on port " + port + " of " + remote);
             s.close();
         } catch (IOException ex) {
-            ScalarmIntegration.logger.log(Level.INFO," simulationManager is not listening on port " + port + " of " + remote);
+            ScalarmIntegration.logger.log(Level.SEVERE, " simulationManagerUrl is not listening on port " + port + " of " + remote);
             assertFalse(true);
         }
     }
